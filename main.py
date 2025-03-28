@@ -1,9 +1,12 @@
-
-from fastapi import FastAPI, HTTPException, status
+from fastapi import FastAPI, Request, HTTPException, status
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from typing import List, Optional
 
 app = FastAPI()
+
+templates = Jinja2Templates(directory="templates")
 
 class Task(BaseModel):
     id: int
@@ -12,41 +15,24 @@ class Task(BaseModel):
     completed: bool = False
 
 tasks: List[Task] = []
-task_id_counter = 1
+task_id_counter = 1 
 
-@app.post("/tasks/", status_code=status.HTTP_201_CREATED)
-async def create_task(task: Task):
+@app.get("/", response_class=HTMLResponse)
+async def read_tasks(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request, "tasks": tasks})
+
+@app.post("/tasks/", response_class=HTMLResponse)
+async def create_task(request: Request, title: str, description: Optional[str] = None): # Form data
     global task_id_counter
-    task.id = task_id_counter
+    new_task = Task(id=task_id_counter, title=title, description=description)
     task_id_counter += 1
-    tasks.append(task)
-    return task
+    tasks.append(new_task)
+    return templates.TemplateResponse("index.html", {"request": request, "tasks": tasks})
 
-@app.get("/tasks/", response_model=List[Task])
-async def get_all_tasks():
-    return tasks
-
-@app.get("/tasks/{task_id}", response_model=Task)
-async def get_task(task_id: int):
-    for task in tasks:
-        if task.id == task_id:
-            return task
-    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found")
-
-@app.put("/tasks/{task_id}", response_model=Task)
-async def update_task(task_id: int, updated_task: Task):
-    for i, task in enumerate(tasks):
-        if task.id == task_id:
-            updated_task.id = task_id 
-            tasks[i] = updated_task
-            return updated_task
-    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found")
-
-@app.delete("/tasks/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_task(task_id: int):
+@app.delete("/tasks/{task_id}", response_class=HTMLResponse)
+async def delete_task(request: Request, task_id: int):
     for i, task in enumerate(tasks):
         if task.id == task_id:
             del tasks[i]
-            return
-    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found")
-
+            break
+    return templates.TemplateResponse("index.html", {"request": request, "tasks": tasks})
