@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, Form
+from fastapi import FastAPI, Request, Form, HTTPException
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
@@ -24,7 +24,7 @@ class Task(BaseModel):
     title: str
     description: Optional[str] = None
     status: TaskStatus = TaskStatus.TODO
-    priority: TaskPriority = TaskPriority.MEDIUM  # Default priority
+    priority: TaskPriority = TaskPriority.LOW  # Default priority
 
 tasks: List[Task] = []
 task_id_counter = 1
@@ -46,3 +46,17 @@ async def create_task(
     task_id_counter += 1
     tasks.append(new_task)
     return templates.TemplateResponse("index.html", {"request": request, "tasks": tasks, "TaskPriority": TaskPriority})
+
+@app.post("/tasks/{task_id}/update/", response_class=HTMLResponse)
+async def update_task(
+    request: Request,
+    task_id: int,
+    status: TaskStatus = Form(...),
+    priority: TaskPriority = Form(...)
+):
+    for task in tasks:
+        if task.id == task_id:
+            task.status = status
+            task.priority = priority
+            return templates.TemplateResponse("index.html", {"request": request, "tasks": tasks, "TaskPriority": TaskPriority})
+    raise HTTPException(status_code=404, detail="Task not found")

@@ -32,6 +32,22 @@
         <h2>{{ task.description or "No description" }}</h2>
         <h3>Status: {{ task.status.value }}</h3>
         <h3>Priority: {{ task.priority.value }}</h3>
+
+        <form method="post" action="/tasks/{{ task.id }}/update/">
+          <label for="status_update_{{ task.id }}">Status:</label>
+          <select name="status" id="status_update_{{ task.id }}">
+            <option value="To Do" {% if task.status.value == 'To Do' %}selected{% endif %}>To Do</option>
+            <option value="In Progress" {% if task.status.value == 'In Progress' %}selected{% endif %}>In Progress</option>
+            <option value="Done" {% if task.status.value == 'Done' %}selected{% endif %}>Done</option>
+          </select>
+          <label for="priority_update_{{ task.id }}">Priority:</label>
+          <select name="priority" id="priority_update_{{ task.id }}">
+            <option value="Low" {% if task.priority.value == 'Low' %}selected{% endif %}>Low</option>
+            <option value="Medium" {% if task.priority.value == 'Medium' %}selected{% endif %}>Medium</option>
+            <option value="High" {% if task.priority.value == 'High' %}selected{% endif %}>High</option>
+          </select>
+          <button type="submit">Update Task</button>
+        </form>
       </li>
       {% endfor %}
     </ul>
