@@ -15,16 +15,23 @@
         <option value="In Progress">In Progress</option>
         <option value="Done">Done</option>
       </select>
+      <label for="priority">Priority:</label>
+      <select name="priority" id="priority">
+        <option value="Low">Low</option>
+        <option value="Medium">Medium</option>
+        <option value="High">High</option>
+      </select>
       <button type="submit">Add Task</button>
     </form>
 
-    <h2>Current Tasks</h2>
     <ul>
+      <h2>Current Tasks:</h2>
       {% for task in tasks %}
       <li>
         <h1>{{ task.title }}</h1>
         <h2>{{ task.description or "No description" }}</h2>
         <h3>Status: {{ task.status.value }}</h3>
+        <h3>Priority: {{ task.priority.value }}</h3>
       </li>
       {% endfor %}
     </ul>
