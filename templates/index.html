@@ -9,15 +9,24 @@
     <form method="post" action="/tasks/">
       <input type="text" name="title" placeholder="Task Title" required />
       <input type="text" name="description" placeholder="Description" />
+      <label for="status">Status:</label>
+      <select name="status" id="status">
+        <option value="To Do">To Do</option>
+        <option value="In Progress">In Progress</option>
+        <option value="Done">Done</option>
+      </select>
       <button type="submit">Add Task</button>
     </form>
 
+    <h2>Current Tasks</h2>
     <ul>
       {% for task in tasks %}
       <li>
-        {{ task.title }} - {{ task.description or "No description" }} {%
-        endfor%}
+        <h1>{{ task.title }}</h1>
+        <h2>{{ task.description or "No description" }}</h2>
+        <h3>Status: {{ task.status.value }}</h3>
       </li>
+      {% endfor %}
     </ul>
   </body>
 </html>
