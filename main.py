@@ -1,9 +1,11 @@
-from fastapi import FastAPI, Request, Form, HTTPException
+from fastapi import FastAPI, Request, Form, HTTPException, Depends
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import Optional
 from enum import Enum
+from sqlalchemy.orm import Session
+from database import SessionLocal, Task as DBTask  
 
 app = FastAPI()
 
@@ -20,17 +22,22 @@ class TaskPriority(str, Enum):
     HIGH = "High"
 
 class Task(BaseModel):
-    id: int
+    id: Optional[int] = None  # Make ID optional for creation
     title: str
     description: Optional[str] = None
     status: TaskStatus = TaskStatus.TODO
-    priority: TaskPriority = TaskPriority.LOW  # Default priority
+    priority: TaskPriority = TaskPriority.LOW
 
-tasks: List[Task] = []
-task_id_counter = 1
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 @app.get("/", response_class=HTMLResponse)
-async def read_tasks(request: Request):
+async def read_tasks(request: Request, db: Session = Depends(get_db)):
+    tasks = db.query(DBTask).all()
     return templates.TemplateResponse("index.html", {"request": request, "tasks": tasks, "TaskPriority": TaskPriority})
 
 @app.post("/tasks/", response_class=HTMLResponse)
@@ -39,24 +46,27 @@ async def create_task(
     title: str = Form(...),
     description: Optional[str] = Form(None),
     status: TaskStatus = Form(TaskStatus.TODO),
-    priority: TaskPriority = Form(TaskPriority.MEDIUM)
+    priority: TaskPriority = Form(TaskPriority.MEDIUM),
+    db: Session = Depends(get_db)
 ):
-    global task_id_counter
-    new_task = Task(id=task_id_counter, title=title, description=description, status=status, priority=priority)
-    task_id_counter += 1
-    tasks.append(new_task)
-    return templates.TemplateResponse("index.html", {"request": request, "tasks": tasks, "TaskPriority": TaskPriority})
+    db_task = DBTask(title=title, description=description, status=status.value, priority=priority.value)
+    db.add(db_task)
+    db.commit()
+    db.refresh(db_task)
+    return templates.TemplateResponse("index.html", {"request": request, "tasks": db.query(DBTask).all(), "TaskPriority": TaskPriority})
 
 @app.post("/tasks/{task_id}/update/", response_class=HTMLResponse)
 async def update_task(
     request: Request,
     task_id: int,
     status: TaskStatus = Form(...),
-    priority: TaskPriority = Form(...)
+    priority: TaskPriority = Form(...),
+    db: Session = Depends(get_db)
 ):
-    for task in tasks:
-        if task.id == task_id:
-            task.status = status
-            task.priority = priority
-            return templates.TemplateResponse("index.html", {"request": request, "tasks": tasks, "TaskPriority": TaskPriority})
-    raise HTTPException(status_code=404, detail="Task not found")
+    db_task = db.query(DBTask).filter(DBTask.id == task_id).first()
+    if db_task is None:
+        raise HTTPException(status_code=404, detail="Task not found")
+    db_task.status = status.value
+    db_task.priority = priority.value
+    db.commit()
+    return templates.TemplateResponse("index.html", {"request": request, "tasks": db.query(DBTask).all(), "TaskPriority": TaskPriority})

@@ -34,6 +34,7 @@
         <h3>Priority: {{ task.priority.value }}</h3>
 
         <form method="post" action="/tasks/{{ task.id }}/update/">
+          <h3>Update task: </h3>
           <label for="status_update_{{ task.id }}">Status:</label>
           <select name="status" id="status_update_{{ task.id }}">
             <option value="To Do" {% if task.status.value == 'To Do' %}selected{% endif %}>To Do</option>
@@ -46,7 +47,7 @@
             <option value="Medium" {% if task.priority.value == 'Medium' %}selected{% endif %}>Medium</option>
             <option value="High" {% if task.priority.value == 'High' %}selected{% endif %}>High</option>
           </select>
-          <button type="submit">Update Task</button>
+          <button type="submit">Update</button>
         </form>
       </li>
       {% endfor %}
