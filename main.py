@@ -6,11 +6,11 @@ from typing import Optional
 from enum import Enum
 from sqlalchemy.orm import Session
 from database import SessionLocal, Task as DBTask  
-
+from fastapi.staticfiles import StaticFiles
 app = FastAPI()
 
 templates = Jinja2Templates(directory="templates")
-
+app.mount("/static", StaticFiles(directory="static"), name="static")
 class TaskStatus(str, Enum):
     TODO = "To Do"
     IN_PROGRESS = "In Progress"

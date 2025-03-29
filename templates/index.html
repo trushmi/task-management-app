@@ -1,6 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}">
     <title>Task Management</title>
   </head>
   <body>
@@ -30,8 +33,8 @@
       <li>
         <h1>{{ task.title }}</h1>
         <h2>{{ task.description or "No description" }}</h2>
-        <h3>Status: {{ task.status.value }}</h3>
-        <h3>Priority: {{ task.priority.value }}</h3>
+        <p>Status: {{ task.status.value }}</p>
+        <p>Priority: {{ task.priority.value }}</p>
 
         <form method="post" action="/tasks/{{ task.id }}/update/">
           <h3>Update task: </h3>
