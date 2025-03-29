@@ -1,56 +1,57 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}">
-    <title>Task Management</title>
+<html lang="en" class="html-element">
+  <head class="head-element">
+    <meta charset="UTF-8" class="meta-element" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" class="meta-element" />
+    <link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}" class="link-element">
+    <title class="title-element">Task Management</title>
   </head>
-  <body>
-    <h1>Tasks</h1>
+  <body class="component-wrapper" >
+    <h1 class="heading-primary">Tasks</h1>
 
-    <form method="post" action="/tasks/">
-      <input type="text" name="title" placeholder="Task Title" required />
-      <input type="text" name="description" placeholder="Description" />
-      <label for="status">Status:</label>
-      <select name="status" id="status">
-        <option value="To Do">To Do</option>
-        <option value="In Progress">In Progress</option>
-        <option value="Done">Done</option>
+    <form method="post" action="/tasks/" class="task-form">
+      <input type="text" name="title" placeholder="Task Title" required class="input-text"/>
+      <input type="text" name="description" placeholder="Description" class="input-text"/>
+      <label for="status" class="form-label">Status:</label>
+      <select name="status" id="status" class="form-select">
+        <option value="To Do" class="form-option">To Do</option>
+        <option value="In Progress" class="form-option">In Progress</option>
+        <option value="Done" class="form-option">Done</option>
       </select>
-      <label for="priority">Priority:</label>
-      <select name="priority" id="priority">
-        <option value="Low">Low</option>
-        <option value="Medium">Medium</option>
-        <option value="High">High</option>
+      <label for="priority" class="form-label">Priority:</label>
+      <select name="priority" id="priority" class="form-select">
+        <option value="Low" class="form-option">Low</option>
+        <option value="Medium" class="form-option">Medium</option>
+        <option value="High" class="form-option">High</option>
       </select>
-      <button type="submit">Add Task</button>
+      <button type="submit" class="button-primary">Add Task</button>
     </form>
 
-    <ul>
-      <h2>Current Tasks:</h2>
+    <ul class="task-list">
+      <h2 class="heading-secondary">Current Tasks:</h2>
       {% for task in tasks %}
-      <li>
-        <h1>{{ task.title }}</h1>
-        <h2>{{ task.description or "No description" }}</h2>
-        <p>Status: {{ task.status.value }}</p>
-        <p>Priority: {{ task.priority.value }}</p>
-
-        <form method="post" action="/tasks/{{ task.id }}/update/">
-          <h3>Update task: </h3>
-          <label for="status_update_{{ task.id }}">Status:</label>
-          <select name="status" id="status_update_{{ task.id }}">
-            <option value="To Do" {% if task.status.value == 'To Do' %}selected{% endif %}>To Do</option>
-            <option value="In Progress" {% if task.status.value == 'In Progress' %}selected{% endif %}>In Progress</option>
-            <option value="Done" {% if task.status.value == 'Done' %}selected{% endif %}>Done</option>
+      <li class="task-item">
+        <div>
+          <h1 class="task-title">{{ task.title }}</h1>
+          <h2 class="task-description">{{ task.description or "No description" }}</h2>
+          <p class="task-status">Status: {{ task.status.value }}</p>
+          <p class="task-priority">Priority: {{ task.priority.value }}</p>
+        </div>
+        <form method="post" action="/tasks/{{ task.id }}/update/" class="update-form">
+          <h3 class="heading-tertiary">Update task: </h3>
+          <label for="status_update_{{ task.id }}" class="form-label">Status:</label>
+          <select name="status" id="status_update_{{ task.id }}" class="form-select">
+            <option value="To Do" {% if task.status.value == 'To Do' %}selected{% endif %} class="form-option">To Do</option>
+            <option value="In Progress" {% if task.status.value == 'In Progress' %}selected{% endif %} class="form-option">In Progress</option>
+            <option value="Done" {% if task.status.value == 'Done' %}selected{% endif %} class="form-option">Done</option>
           </select>
-          <label for="priority_update_{{ task.id }}">Priority:</label>
-          <select name="priority" id="priority_update_{{ task.id }}">
-            <option value="Low" {% if task.priority.value == 'Low' %}selected{% endif %}>Low</option>
-            <option value="Medium" {% if task.priority.value == 'Medium' %}selected{% endif %}>Medium</option>
-            <option value="High" {% if task.priority.value == 'High' %}selected{% endif %}>High</option>
+          <label for="priority_update_{{ task.id }}" class="form-label">Priority:</label>
+          <select name="priority" id="priority_update_{{ task.id }}" class="form-select">
+            <option value="Low" {% if task.priority.value == 'Low' %}selected{% endif %} class="form-option">Low</option>
+            <option value="Medium" {% if task.priority.value == 'Medium' %}selected{% endif %} class="form-option">Medium</option>
+            <option value="High" {% if task.priority.value == 'High' %}selected{% endif %} class="form-option">High</option>
           </select>
-          <button type="submit">Update</button>
+          <button type="submit" class="button-secondary">Update</button>
         </form>
       </li>
       {% endfor %}
